@@ -1,0 +1,2 @@
+class FridgegrowApiException(Exception):
+    pass
