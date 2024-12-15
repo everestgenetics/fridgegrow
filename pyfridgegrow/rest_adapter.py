@@ -73,7 +73,7 @@ class RestAdapter:
     def delete(self, endpoint: str, headers: Dict = None, ep_params: Dict = None, data: Dict = None) -> Result:
         return self._do(http_method='DELETE', endpoint=endpoint, headers=headers, ep_params=ep_params, data=data)
 
-
+    '''
     def fetch_data(self, url: str) -> bytes:
         # GET URL; catching, logging, and re-raising any exceptions
         http_method = 'GET'
@@ -92,3 +92,4 @@ class RestAdapter:
         if not is_success:
             raise FridgegrowApiException(response.reason)
         return response.content
+        '''

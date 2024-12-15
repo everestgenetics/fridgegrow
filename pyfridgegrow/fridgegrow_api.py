@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, List #, Callable
 from pyfridgegrow.rest_adapter import RestAdapter
-#from pyfridgegrow.exceptions import FridgegrowApiException
-from pyfridgegrow.models import Login, Device
-
+from pyfridgegrow.exceptions import FridgegrowApiException
+from pyfridgegrow.models import *
+from enum import Enum
 
 class FridgegrowApi:
     def __init__(self, hostname: str = 'api.plantalytix-app.com', username: str = '', password: str = '', ssl_verify: bool = True,
@@ -11,7 +11,7 @@ class FridgegrowApi:
         self._rest_adapter = RestAdapter(hostname, username, password, ssl_verify, logger)
 
     def _get_auth_header(self) -> Dict:
-        return {"Authorization":f"Bearer {self._login.user_token.token}"}
+        return {"Authorization":f"Bearer {self._login.user_token.token}"} 
     
     def login(self) -> Login:
         data = {"username":self._rest_adapter.username, "password":self._rest_adapter.password}
@@ -21,11 +21,63 @@ class FridgegrowApi:
     
     def get_device_list(self) -> List[Device]:
         headers = self._get_auth_header()
-        result = self._rest_adapter.get(endpoint=f'/device',headers=headers)
+        result = self._rest_adapter.get(endpoint='/device',headers=headers)
         device_list= [Device(**device) for device in result.data]
         return device_list
-        
+
+    def _get_data_latest_path(self, device_num: int=0) -> str:
+        device_list = self.get_device_list()
+        device_id = device_list[device_num].device_id
+        return f'data/latest/{device_id}'
     
+    def _get_data_series_path(self, device_num: int=0) -> str:
+        device_list = self.get_device_list()
+        device_id = device_list[device_num].device_id
+        return f'data/series/{device_id}'
+    
+    def get_temperature(self) -> Temperature:
+        data_latest_path = self._get_data_latest_path()
+        headers = self._get_auth_header()
+        result = self._rest_adapter.get(endpoint=f'{data_latest_path}/temperature',headers=headers)
+        temperature = Temperature(**result.data)
+        return temperature
+    
+    def get_co2(self) -> Co2:
+        data_latest_path = self._get_data_latest_path()
+        headers = self._get_auth_header()
+        result = self._rest_adapter.get(endpoint=f'{data_latest_path}/co2',headers=headers)
+        co2 = Co2(**result.data)
+        return co2
+    
+    def get_humidity(self) -> Humidity:
+        data_latest_path = self._get_data_latest_path()
+        headers = self._get_auth_header()
+        result = self._rest_adapter.get(endpoint=f'{data_latest_path}/humidity',headers=headers)
+        humidity = Humidity(**result.data)
+        return humidity
+    
+    def get_data_latest(self, data_type:Enum) -> Temperature:
+        if not data_type:
+            raise FridgegrowApiException (f'Not data_type provided to get latest data')
+        data_latest_path = self._get_data_latest_path()
+        headers = self._get_auth_header()
+        result = self._rest_adapter.get(endpoint=f'{data_latest_path}/{data_type.name.lower()}',headers=headers)
+        match data_type:
+            case DataType.TEMPERATURE: 
+                return Temperature(**result.data)
+            case DataType.CO2: 
+                return Co2(**result.data)
+            case DataType.HUMIDITY: 
+                return Humidity(**result.data)
+
+    def get_data_series(self, from_param: str='-1d', to_param:str ='now()', interval_param:str ='20s', data_type:Enum=''):
+        data_series_path = self._get_data_series_path()
+        headers = self._get_auth_header()
+        ep_params = {"from":from_param, "to":to_param, "interval":interval_param}
+        result = self._rest_adapter.get(endpoint=f'{data_series_path}/{data_type.name.lower()}',headers=headers,ep_params=ep_params)
+        data_series= [DataSeriesItem(**dsi) for dsi in result.data]
+        return data_series
+
         
         
 '''

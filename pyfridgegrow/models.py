@@ -1,6 +1,7 @@
-#import os
+    #import os
 from typing import List, Dict, TypeVar#, Union
 from requests.structures import CaseInsensitiveDict
+from enum import Enum
 #from pyfridgegrow.exceptions import FridgegrowApiException
 
 Model = TypeVar('Model', covariant=True)
@@ -38,14 +39,45 @@ class RefreshToken:
 class Login:
     def __init__(self, user: User, userToken: UserToken, refreshToken: RefreshToken):
         self.user = user
-        self.user_token = refreshToken
+        self.user_token = userToken
         self.refresh_token = refreshToken
+
 class Device:
     def __init__(self, _id: str, device_id: str, device_type: str, configuration: Dict):
         self.id = _id
         self.device_id = device_id
         self.device_type = device_type
         self.configuration = configuration
+
+class Co2:
+    def __init__(self, value: float):
+        self.value = value
+
+class Temperature:
+    def __init__(self, value: float):
+        self.value = value
+
+class Humidity:
+    def __init__(self, value: float):
+        self.value = value
+
+class DataType(Enum):
+    TEMPERATURE = 1
+    CO2 = 2
+    HUMIDITY = 3
+
+class DataSeriesItem:
+    def __init__(self, result: str, table: int, _start: str, _stop: str, _time: str, _value: float, _field: str, _measurement: str, device_id: str, user_id: str):
+        self.result = result
+        self.table = table
+        self._start = _start
+        self._stop = _stop
+        self._time = _time
+        self._value = _value
+        self._field = _field
+        self._measurement = _measurement
+        self.device_id = device_id
+        self.user_id = user_id
 '''
 class Fact:
     def __init__(self, id: str, text: str, language_code: str, breed_id: str):
