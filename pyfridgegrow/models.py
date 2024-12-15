@@ -1,7 +1,7 @@
-import os
-from typing import List, Dict, Union, TypeVar
+#import os
+from typing import List, Dict, TypeVar#, Union
 from requests.structures import CaseInsensitiveDict
-from pyfridge.exceptions import FridgegrowApiException
+#from pyfridgegrow.exceptions import FridgegrowApiException
 
 Model = TypeVar('Model', covariant=True)
 
@@ -19,7 +19,34 @@ class Result:
         self.message = str(message)
         self.data = data if data else []
 
+class User:
+    def __init__(self, username: str, user_id: str, is_admin: str):
+        self.username = username
+        self.user_id = user_id
+        self.is_admin = is_admin
 
+class UserToken:
+    def __init__(self, expiresIn: str, token: str):
+        self.expiresIn = expiresIn
+        self.token = token
+
+class RefreshToken:
+    def __init__(self, expiresIn: str, token: str):
+        self.expiresIn = expiresIn
+        self.token = token
+
+class Login:
+    def __init__(self, user: User, userToken: UserToken, refreshToken: RefreshToken):
+        self.user = user
+        self.user_token = refreshToken
+        self.refresh_token = refreshToken
+class Device:
+    def __init__(self, _id: str, device_id: str, device_type: str, configuration: Dict):
+        self.id = _id
+        self.device_id = device_id
+        self.device_type = device_type
+        self.configuration = configuration
+'''
 class Fact:
     def __init__(self, id: str, text: str, language_code: str, breed_id: str):
         self.id = id
@@ -88,3 +115,4 @@ class ImageFull(ImageShort):
         self.created_at = created_at
         self.original_filename = original_filename
         self.__dict__.update(kwargs)
+'''
