@@ -1,16 +1,34 @@
 import logging
-from typing import Iterator, Callable
-from pyfridge.rest_adapter import RestAdapter
-from pyfridge.exceptions import FridgegrowApiException
-from pyfridge.models import *
+from typing import Dict, List #, Callable
+from pyfridgegrow.rest_adapter import RestAdapter
+#from pyfridgegrow.exceptions import FridgegrowApiException
+from pyfridgegrow.models import Login, Device
 
 
 class FridgegrowApi:
-    def __init__(self, hostname: str = 'api.thecatapi.com', api_key: str = '', ver: str = 'v1', ssl_verify: bool = True,
-                 logger: logging.Logger = None, page_size: int = 5):
-        self._rest_adapter = RestAdapter(hostname, api_key, ver, ssl_verify, logger)
-        self._page_size = page_size
+    def __init__(self, hostname: str = 'api.plantalytix-app.com', username: str = '', password: str = '', ssl_verify: bool = True,
+                 logger: logging.Logger = None):
+        self._rest_adapter = RestAdapter(hostname, username, password, ssl_verify, logger)
 
+    def _get_auth_header(self) -> Dict:
+        return {"Authorization":f"Bearer {self._login.user_token.token}"}
+    
+    def login(self) -> Login:
+        data = {"username":self._rest_adapter.username, "password":self._rest_adapter.password}
+        result = self._rest_adapter.post(endpoint='/login',data=data)
+        self._login =  Login(**result.data) 
+        return self._login
+    
+    def get_device_list(self) -> List[Device]:
+        headers = self._get_auth_header()
+        result = self._rest_adapter.get(endpoint=f'/device',headers=headers)
+        device_list= [Device(**device) for device in result.data]
+        return device_list
+        
+    
+        
+        
+'''
     def get_kitty(self) -> ImageShort:
         return self.get_clowder_of_kitties(amt=1)[0]
 
@@ -40,3 +58,4 @@ class FridgegrowApi:
 
     def get_kitties_paged(self, max_amt: int = 100) -> Iterator[ImageShort]:
         return self._page(endpoint='/images/search', model=ImageShort, max_amt=max_amt)
+'''
