@@ -1,6 +1,6 @@
 import requests
 import logging
-from typing import Dict, List
+from typing import Dict
 from json import JSONDecodeError
 from pyfridgegrow.exceptions import FridgegrowApiException
 from pyfridgegrow.models import Result

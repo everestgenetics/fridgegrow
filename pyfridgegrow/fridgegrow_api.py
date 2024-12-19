@@ -21,7 +21,7 @@ class FridgegrowApi:
     
     def get_device_list(self) -> List[Device]:
         headers = self._get_auth_header()
-        result = self._rest_adapter.get(endpoint=f'/device',headers=headers)
+        result = self._rest_adapter.get(endpoint='/device',headers=headers)
         device_list= [Device(**device) for device in result.data]
         return device_list
         
